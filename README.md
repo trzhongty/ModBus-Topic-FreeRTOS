@@ -3,7 +3,7 @@
 
 # 设置
 在modbus.h 移植相关中，可以设定ModBus从机任务占用的堆栈空间、任务优先级、接收缓冲长度
-```
+```c
 	#define MODBUS_SLAVETASK_STACK_SIZE			512u
 	#define MODBUS_SLAVETASK_PRIORITY_NUM			3u
 	#define MODBUS_SLAVETASK_BUFF_SIZE			512u
@@ -20,12 +20,12 @@
 
 # 作为从机使用
 通过以下接口来创建ModBus从机，该函数会自动创建一个任务，用于检测指定收发函数下的ModBus数据包并作出响应，分发至订阅列表
-```
+```c
 	//创建从机 任务，控制接收、解析、分发、回复
 	ModBus_Slave_TypeDef * ModBus_CreateSlave( ModBus_SlaveInit_TypeDef *hSlaveInit );
 ```
 以下为传入结构体定义：
-```
+```c
 //创建一个从机模式任务，传入参数结构体
 typedef struct
 {
@@ -42,13 +42,13 @@ typedef struct
 
 为了实现具体通讯内容，还必须订阅具体的地址、寄存器类型、寄存器地址、长度等信息。才能使ModBus从机正常分发任务。
 以下为添加订阅接口：
-```
+```c
 //对指定从机任务，添加订阅链表信息
 int ModBus_AddTopic( ModBus_Slave_TypeDef *hSlave, ModBus_TopicLink_TypeDef *hTopicLink );
 ```
 具体示例如下：
 以下示例创建了一个从机，并分别订阅了4个输入寄存器，1个保持寄存器。这5个寄存器读写函数是同一个，4个输入寄存器地址通过for循环累加循环订阅。
-```
+```c
 	//初始化流程
 	//ModBusRTU 从机初始化
 	hSlaveInit.fRxPort = &JCZ_GM3RxModBusPack;
@@ -79,7 +79,7 @@ int ModBus_AddTopic( ModBus_Slave_TypeDef *hSlave, ModBus_TopicLink_TypeDef *hTo
 	ModBus_AddTopic( hJCZ.modbusSlave, &hTopicLink );
 ```
 订阅类型不仅局限于单个寄存器，也可以是连续多个寄存器，并且可以设定访问模式
-```
+```c
 	//数据点读写模式
 	typedef enum
 	{
@@ -93,7 +93,7 @@ int ModBus_AddTopic( ModBus_Slave_TypeDef *hSlave, ModBus_TopicLink_TypeDef *hTo
 
 # 作为主机使用
 作为主机，无需创建从机任务。仅通过一个函数即可实现整个通讯任务
-```
+```c
 	//主机形式，下发指令
 	int ModBus_MainTxCom( ModBus_SlaveInit_TypeDef *hSlaveInit,ModBus_Msg_TypeDef *hModBusMsg);
 ```
@@ -102,7 +102,7 @@ int ModBus_AddTopic( ModBus_Slave_TypeDef *hSlave, ModBus_TopicLink_TypeDef *hTo
 包含在hModBusMsg->parse中。
 
 示例如下：	
-```
+```c
 	ModBus_Msg_TypeDef hModBusMsg = 
 	{
 	  .packData = NULL,
